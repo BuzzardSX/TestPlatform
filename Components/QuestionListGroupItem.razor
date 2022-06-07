@@ -1,0 +1,172 @@
+@using TestPlatform.Models
+@inject ILogger<QuestionListGroupItem> Logger
+@inject IDbContextFactory<ApplicationContext> DbFactory
+
+<div class="h5 d-flex justify-content-between mt-2 mb-3">
+	<span>Вопрос №@Question.Number</span>
+	<span class="me-1">
+		@if (Question.Number > 1)
+		{
+			<i class="bi bi-arrow-up" role="button" @onclick=@(() => Move(true))></i>
+		}
+		@if (Question.Number < Count)
+		{
+			<i class="bi bi-arrow-down ms-2" role="button" @onclick=@(() => Move(false))></i>
+		}
+		<i class="bi bi-trash-fill mx-2" role="button" @onclick=@HandleDeleteButtonClickAsync></i>
+	</span>
+</div>
+<div class="form-floating">
+	<textarea class="form-control" id="QuestionText" placeholder="Укажите вопрос" @bind=@Question.Text></textarea>
+	<label for="QuestionText">Содержание</label>
+</div>
+@if (Question != null && Question.Options != null && Question.Options.Count > 0)
+{
+	<div class="list-group mt-3">
+		@foreach (var o in Question.Options)
+		{
+			<OptionListGroupItem
+				Option=@o
+				ListCount=@Question.Options.Count
+				OnClickCallback=@HandleOptionClick
+				OnChangeCallback=@(() => OnChangeCallback.InvokeAsync())
+				IsQuestionPending=@IsTestPending
+			/>
+		}
+	</div>
+}
+<button class="btn btn-outline-primary rounded-pill mt-3" @onclick=@(() => Option = new())>Добавить ответ</button>
+@if (Option != null)
+{
+	<div class="my-3">
+		<textarea class="form-control" placeholder="Укажите текст ответа" required @bind=@Option.Text></textarea>
+	</div>
+	<div class="w-100 d-inline-flex justify-content-between">
+		<span>
+			<button class="btn btn-primary" type="button" @onclick=@HandleOptionSaveButtonClickAsync>Сохранить</button>
+			<button class="btn btn-outline-primary" type="button" @onclick=@(() => Option = null)>Отмена</button>
+		</span>
+		@if (Option.Id != Guid.Empty)
+		{
+			<button class="btn btn-outline-danger" type="button" @onclick=@HandleOptionDeleteButtonClickAsync>Удалить</button>
+		}
+	</div>
+}
+
+@code {
+	[Parameter]
+	public Question Question { get; set; }
+
+	[Parameter]
+	public int Count { get; set; }
+
+	[Parameter]
+	public EventCallback OnChangeCallback { get; set; }
+
+	[Parameter]
+	public bool IsTestPending { get; set; }
+
+	private QuestionOption Option { get; set; }
+
+	private async Task HandleOptionSaveButtonClickAsync()
+	{
+		using var context = await DbFactory.CreateDbContextAsync();
+
+		if (Option.Number == 0)
+		{
+			Option.QuestionId = Question.Id;
+
+			var number = (await context.QuestionOptions
+				.Where(o => o.QuestionId == Option.QuestionId)
+				.MaxAsync(o => o.Number as int?) ?? 0) + 1;
+
+			Option.Number = number;
+
+			if (Option.Number == 1)
+			{
+				Option.IsCorrect = true;
+			}
+		}
+
+		context.QuestionOptions.Update(Option);
+		await context.SaveChangesAsync();
+
+		await OnChangeCallback.InvokeAsync();
+		Option = null;
+	}
+
+	private void HandleOptionClick(Guid id)
+	{
+		using var context = DbFactory.CreateDbContext();
+
+		Option = context.QuestionOptions.Find(id);
+	}
+
+	private async Task HandleOptionDeleteButtonClickAsync()
+	{
+		using var context = await DbFactory.CreateDbContextAsync();
+
+		context.QuestionOptions.Remove(Option);
+
+		var options = await context.QuestionOptions
+			.Where(o => o.QuestionId == Option.QuestionId)
+			.OrderBy(o => o.Number)
+			.Skip(Option.Number)
+			.ToListAsync();
+
+		foreach (var option in options)
+		{
+			option.Number = option.Number - 1;
+		}
+
+		await context.SaveChangesAsync();
+
+		await OnChangeCallback.InvokeAsync();
+
+		Option = null;
+	}
+
+	private async Task HandleDeleteButtonClickAsync()
+	{
+		using var context = await DbFactory.CreateDbContextAsync();
+
+		context.Questions.Remove(Question);
+
+		var questions = await context.Questions
+			.Where(q => q.TestId == Question.TestId)
+			.OrderBy(q => q.Number)
+			.Skip(Question.Number)
+			.ToListAsync();
+
+		foreach (var question in questions)
+		{
+			question.Number = question.Number - 1;
+		}
+
+		await context.SaveChangesAsync();
+
+		await OnChangeCallback.InvokeAsync();
+	}
+
+	private async Task Move(bool moveUp)
+	{
+		using var context = await DbFactory.CreateDbContextAsync();
+
+		var questionA = context.Questions.Find(Question.Id);
+
+		var numberB = moveUp ? questionA.Number - 1 : questionA.Number + 1;
+
+		var questionB = await context.Questions
+			.SingleAsync(q => q.TestId == Question.TestId && q.Number == numberB);
+
+		questionB.Number = questionA.Number;
+
+		questionA.Number = numberB;
+
+		await context.SaveChangesAsync();
+
+		await OnChangeCallback.InvokeAsync();
+	}
+}
+
+

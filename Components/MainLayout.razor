@@ -1,0 +1,22 @@
+@inherits LayoutComponentBase
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div>@Auth.User.Identity.Name</div>
+<div class="nav">
+	<div class="nav-item custom">
+		<NavLink href="/users">Список обучающихся</NavLink>
+	</div>
+	<div class="nav-item">
+		<NavLink href="/tests">Список тестов</NavLink>
+	</div>
+</div>
+<div class="main">@Body</div>
+
+@code {
+	private AuthenticationState Auth { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		Auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+	}
+}

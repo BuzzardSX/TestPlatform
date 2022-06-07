@@ -1,0 +1,83 @@
+@page "/test/{id:guid}"
+@inject ILogger<TestPass> Logger
+@inject IDbContextFactory<ApplicationContext> DbFactory
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h1>@Test.Title</h1>
+<div class="list-group list-group-flush">
+	@foreach (var q in Test.Questions)
+	{
+		<TestPassQuestion Question=@q OnOptionSelectCallback=@HandleOptionSelect />
+	}
+</div>
+<button class="btn btn-primary btn-lg" type="button" @onclick=@HandleFinishButtonClick>Завершить тест</button>
+
+@code {
+	[Parameter]
+	public Guid Id { get; set; }
+
+	private Test Test { get; set; }
+
+	private Dictionary<Guid, Guid> Results { get; set; }
+
+	protected override void OnInitialized()
+	{
+		Results = new();
+
+		using var context = DbFactory.CreateDbContext();
+
+		Test = context.Tests
+			.Include(t => t.Questions.OrderBy(t => t.Number))
+			.ThenInclude(q => q.Options.OrderBy(o => o.Number))
+			.Single(t => t.Id == Id);
+	}
+
+	private void HandleOptionSelect((Guid, Guid) arg)
+	{
+		Results[arg.Item1] = arg.Item2;
+
+		Logger.LogWarning(string.Join(Environment.NewLine, Results));
+	}
+
+	private async Task HandleFinishButtonClick()
+	{
+		var score = 0;
+
+		foreach (var q in Test.Questions)
+		{
+			var selectedOption = Results.GetValueOrDefault(q.Id);
+
+			if (selectedOption != Guid.Empty)
+			{
+				var option = q.Options.Single(o => o.Id == selectedOption);
+
+				if (option.IsCorrect)
+				{
+					score = score + 1;
+				}
+			}
+		}
+
+		Logger.LogWarning("Score: {0}", score);
+
+		var auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+		Logger.LogWarning(auth.User.Identity.Name);
+
+		using var context = await DbFactory.CreateDbContextAsync();
+
+		var result = new Result
+		{
+			Test = Test.Title,
+			UserEmail = auth.User.Identity.Name,
+			Score = score,
+			TotalScore = Test.Questions.Count,
+			FinishedDate = DateTime.Now
+		};
+
+		await context.Results.AddAsync(result);
+		await context.SaveChangesAsync();
+
+		NavigationManager.NavigateTo("/results");
+	}
+}

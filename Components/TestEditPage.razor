@@ -1,0 +1,105 @@
+@page "/test-edit/{id:guid?}"
+@inject IDbContextFactory<ApplicationContext> DbFactory
+
+@if (Test != null)
+{
+	<div class="modal-body pb-1">
+		<div class="form-floating">
+			<textarea class="form-control" id="TestTitle" placeholder="Укажите название теста" @bind=@Test.Title></textarea>
+			<label for="TestTitle">Название теста</label>
+		</div>
+	</div>
+	@if (Test.Id != Guid.Empty)
+	{
+		<div class="list-group list-group-flush">
+			@if (Test.Questions != null)
+			{
+				@foreach (var q in Test.Questions)
+				{
+					<div class="list-group-item pb-3">
+						<QuestionListGroupItem Count=@Test.Questions.Count Question=@q OnChangeCallback=@HandleChange IsTestPending=@_isPending />
+					</div>
+				}
+			}
+			<div class="list-group-item">
+				<div class="mb-3">
+					<textarea class="form-control" placeholder="Содержание вопроса" @bind=@NewQuestionText></textarea>
+				</div>
+				<button class="btn btn-primary" type="button" @onclick=@HandleAddNewQuestion>Сохранить вопрос</button>
+			</div>
+		</div>
+	}
+}
+<div class="modal-footer">
+	<button class="btn btn-primary" data-bs-dismiss="modal" @onclick=@HandleSaveTestClick>Сохранить</button>
+</div>
+
+@code {
+	[Parameter]
+	public Guid? Id { get; set; }
+
+	private Test Test { get; set; }
+
+	private bool _isPending;
+
+	private string NewQuestionText { get; set; }
+
+	protected override void OnInitialized()
+	{
+		using var context = DbFactory.CreateDbContext();
+
+		Test = context.Tests
+			.Include(t => t.Questions.OrderBy(t => t.Number))
+			.ThenInclude(q => q.Options.OrderBy(o => o.Number))
+			.SingleOrDefault(t => t.Id == Id) ?? new();
+	}
+
+	private async Task HandleSaveTestClick()
+	{
+		using var context = await DbFactory.CreateDbContextAsync();
+
+		context.Tests.Update(Test);
+		await context.SaveChangesAsync();
+	}
+
+	private async Task HandleAddNewQuestion()
+	{
+		var question = new Question
+		{
+			TestId = Test.Id,
+			Text = NewQuestionText
+		};
+
+		using var context = await DbFactory.CreateDbContextAsync();
+
+		var number = await context.Questions
+			.Where(q => q.TestId == Test.Id)
+			.MaxAsync(q => q.Number as int?) ?? 0;
+
+		question.Number = number + 1;
+
+		await context.Questions.AddAsync(question);
+		await context.SaveChangesAsync();
+
+		NewQuestionText = null;
+
+		await LoadAsync(Test.Id);
+	}
+
+	private async Task HandleChange()
+	{
+		using var context = await DbFactory.CreateDbContextAsync();
+
+		await LoadAsync(Test.Id);
+	}
+
+	private async Task LoadAsync(Guid id)
+	{
+		using var context = await DbFactory.CreateDbContextAsync();
+
+		Test = await context.Tests
+			.Include(t => t.Questions.OrderBy(t => t.Number))
+			.ThenInclude(q => q.Options.OrderBy(o => o.Number))
+			.SingleAsync(t => t.Id == id);
+	}
+}

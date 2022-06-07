@@ -1,0 +1,28 @@
+@if (Option.Id == SelectedOptionId)
+{
+	<div class="list-group-item list-group-item-action active" role="button" @onclick=@HandleClick>
+		@Option.Text
+	</div>
+}
+else
+{
+	<div class="list-group-item list-group-item-action" role="button" @onclick=@HandleClick>
+		@Option.Text
+	</div>
+}
+
+@code {
+	[Parameter]
+	public QuestionOption Option { get; set; }
+
+	[Parameter]
+	public Guid SelectedOptionId { get; set; }
+
+	[Parameter]
+	public EventCallback<Guid> OnClickCallback { get; set; }
+
+	private void HandleClick()
+	{
+		OnClickCallback.InvokeAsync(Option.Id);
+	}
+}

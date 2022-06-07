@@ -1,0 +1,44 @@
+@page "/"
+@page "/tests"
+@attribute [Authorize]
+
+@inject IDbContextFactory<ApplicationContext> DbFactory
+
+<div class="px-4 mt-5">
+	<h1>
+		<span>Список тестов</span>
+	</h1>
+</div>
+<div class="container mt-5">
+	<div class="row row-cols-2 g-3">
+		@foreach (var t in Tests)
+		{
+			<div class="col">
+				<TestCard Test=@t OnChangeCallback=@HandleTestsChange />
+			</div>
+		}
+	</div>
+</div>
+<div class="d-flex justify-content-center mt-5">
+	<a class="btn btn-primary btn-lg fw-semibold" href="/test-edit">Добавить тест</a>
+</div>
+
+@code {
+	private bool _isPending;
+
+	private IEnumerable<Test> Tests { get; set; }
+
+	protected override void OnInitialized()
+	{
+		using var context = DbFactory.CreateDbContext();
+
+		Tests = context.Tests.ToList();
+	}
+
+	private async Task HandleTestsChange()
+	{
+		using var context = await DbFactory.CreateDbContextAsync();
+
+		Tests = await context.Tests.ToListAsync();
+	}
+}

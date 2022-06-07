@@ -1,0 +1,142 @@
+@page "/users"
+@inject IDbContextFactory<ApplicationContext> DbFactory
+@attribute [Authorize(Roles = "admin")]
+
+<div class="px-1">
+	<h1 class="px-4 mt-5">
+		<span>Список обучающихся</span>
+	</h1>
+	<div class="px-4 mt-5">
+		<table class="table table-striped-columns table-hover">
+			<thead>
+				<tr>
+					<th scope="col">Логин</th>
+					<th scope="col">Пароль</th>
+					<th scope="col">Имя</th>
+					<th scope="col">Фамилия</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var u in Users)
+				{
+					<UserTableRow User=@u OnClickCallback=@HandleRowClick />
+				}
+			</tbody>
+		</table>
+		<div class="modal" id="UserEditModal" tabindex="-1">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header h5">Редактирование</div>
+					<div class="modal-body">
+						@if (User != null)
+						{
+							<div class="mb-3">
+								<div class="row g-3">
+									<div class="col-12">
+										<input class="form-control" disabled @bind=@User.Email />
+									</div>
+									<div class="col-6">
+										<label class="form-label">Имя</label>
+										<input class="form-control" @bind=@User.Name />
+									</div>
+									<div class="col-6">
+										<label class="form-label">Фамилия</label>
+										<input class="form-control" @bind=@User.Surname />
+									</div>
+									<div class="col-12">
+										<label class="form-label">Пароль</label>
+										<input class="form-control" @bind=@User.Password />
+									</div>
+								</div>
+							</div>
+						}
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-primary" data-bs-dismiss="modal" @onclick=@HandleModalSaveClick>Сохранить</button>
+						<button class="btn btn-outline-secondary" data-bs-dismiss="modal">Отмена</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="d-flex px-4 mt-4">
+		<button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#UserEditModal" @onclick=@HandleAddButtonClick>Добавить пользователя</button>
+	</div>
+</div>
+
+@code {
+	private IEnumerable<User> Users { get; set; }
+
+	private User User { get; set; }
+
+	private bool ModalPending { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		Users = new List<User>();
+
+		await LoadUsersAsync();
+	}
+
+	private void HandleRowClick(string email)
+	{
+		using var context = DbFactory.CreateDbContext();
+		User = context.Users.Find(email);
+	}
+
+	private async Task HandleModalSaveClick()
+	{
+		using var context = await DbFactory.CreateDbContextAsync();
+
+		var user = await context.Users.FindAsync(User.Email);
+		if (user == null)
+		{
+			await context.Users.AddAsync(User);
+		}
+		else
+		{
+			user.Name = User.Name;
+			user.Surname = User.Surname;
+			user.Password = User.Password;
+		}
+		await context.SaveChangesAsync();
+		
+		await LoadUsersAsync();
+	}
+
+	private void HandleAddButtonClick()
+	{
+		using var context = DbFactory.CreateDbContext();
+
+		string login = default;
+
+		User user = null;
+
+		do
+		{
+			login = GetToken();
+			user = context.Users.Find(login);
+		}
+		while (user != null);
+
+		User = new User
+		{
+			Email = login,
+			Password = GetToken(),
+			Role = UserRole.User
+		};
+	}
+
+	private string GetToken()
+	{
+		var guid = Guid.NewGuid().ToString();
+		return guid.Substring(guid.Length - 12);
+	}
+
+	private async Task LoadUsersAsync()
+	{
+		using var context = await DbFactory.CreateDbContextAsync();
+
+		Users = await context.Users.ToListAsync();
+	}
+}

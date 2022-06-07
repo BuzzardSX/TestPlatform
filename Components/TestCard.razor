@@ -1,0 +1,55 @@
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IDbContextFactory<ApplicationContext> DbFactory
+
+<div class="card h-100">
+	<div class="card-body">
+		<div class="card-title h5 mb-0">@Test.Title</div>
+	</div>
+	<div class="card-footer d-flex justify-content-end border-top-0 bg-body mb-2">
+		@if (Auth.User.IsInRole("Admin"))
+		{
+			<a class="btn btn-primary" href=@($"/test-edit/{Test.Id}")>Редактировать</a>
+			<button class="btn btn-link text-dark" @onclick=@HandleDeleteButtonClickAsync>
+				@* <i class="bi bi-trash-fill"></i> *@
+				<span>Удалить</span>
+			</button>
+		}
+		@if (Auth.User.IsInRole("User"))
+		{
+			<a class="btn btn-primary" href=@($"/test/{Test.Id}")>Начать тест</a>
+		}
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public Test Test { get; set; }
+
+	[Parameter]
+	public EventCallback<Guid> OnEditButtonClickCallback { get; set; }
+
+	[Parameter]
+	public EventCallback OnChangeCallback { get; set; }
+
+	private AuthenticationState Auth { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		Auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+	}
+
+	private void HandleClick()
+	{
+		OnEditButtonClickCallback.InvokeAsync(Test.Id);
+	}
+
+	private async Task HandleDeleteButtonClickAsync()
+	{
+		using var context = await DbFactory.CreateDbContextAsync();
+
+		context.Tests.Remove(Test);
+		await context.SaveChangesAsync();
+
+		await OnChangeCallback.InvokeAsync();
+	}
+}

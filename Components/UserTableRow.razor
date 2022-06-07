@@ -1,0 +1,19 @@
+<tr role="button" @onclick=@HandleClick data-bs-toggle="modal" data-bs-target="#UserEditModal">
+	<td>@User.Email</td>
+	<td>@(new string('\u2022', User.Password.Length))</td>
+	<td>@User.Name</td>
+	<td>@User.Surname</td>
+</tr>
+
+@code {
+	[Parameter]
+	public User User { get; set; }
+
+	[Parameter]
+	public EventCallback<string> OnClickCallback { get; set; }
+
+	public void HandleClick()
+	{
+		OnClickCallback.InvokeAsync(User.Email);
+	}
+}

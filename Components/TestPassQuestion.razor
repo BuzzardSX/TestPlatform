@@ -1,0 +1,28 @@
+@inject ILogger<TestPassQuestion> Logger
+
+<div class="list-group-item">
+	<div>@Question.Text</div>
+	<div class="list-group">
+		@foreach (var o in Question.Options)
+		{
+			<TestPassQuestionOption Option=@o SelectedOptionId=@SelectedOptionId OnClickCallback=@HandleOptionClick />
+		}
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public Question Question { get; set; }
+
+	[Parameter]
+	public EventCallback<(Guid, Guid)> OnOptionSelectCallback { get; set; }
+
+	private Guid SelectedOptionId { get; set; }
+
+	private void HandleOptionClick(Guid id)
+	{
+		SelectedOptionId = id;
+
+		OnOptionSelectCallback.InvokeAsync(( Question.Id, SelectedOptionId ));
+	}
+}

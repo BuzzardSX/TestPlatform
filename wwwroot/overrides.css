@@ -1,0 +1,16 @@
+:root {
+	--bs-primary: rgb(84, 173, 83);
+}
+
+.text-primary {
+	color: var(--bs-primary);
+}
+
+.btn-primary {
+	background-color: var(--bs-primary);
+	border-color: var(--bs-primary);
+}
+
+.btn-primary:hover {
+	background-color: hsl(119, 27.3%, 42.3%);
+}

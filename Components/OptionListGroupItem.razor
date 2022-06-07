@@ -1,0 +1,119 @@
+@using TestPlatform.Models
+@inject IDbContextFactory<ApplicationContext> DbFactory
+@inject IJSRuntime JS
+
+@if (IsPending)
+{
+	<div class="list-group-item">
+		<div class="placeholder-glow">
+			<div class="list-group-item placeholder placeholder col-4">
+			</div>
+		</div>
+	</div>
+}
+else
+{
+	<div class="list-group-item list-group-item-action d-inline-flex justify-content-between" role="button" @onclick=@HandleClick>
+		<span>
+			<b>@Option.Number.</b>
+			<span>@Option.Text</span>
+		</span>
+		<span>
+			@if (Option.Number > 1)
+			{
+				<i class="bi bi-arrow-up" role="button" @onclick:stopPropagation=@true @onclick=@(() => Move(true))></i>
+			}
+			@if (Option.Number < ListCount)
+			{
+				<i class="bi bi-arrow-down ms-2" role="button" @onclick:stopPropagation=@true @onclick=@(() => Move(false))></i>
+			}
+			<span class="text-primary ms-2" role="button" @onclick:stopPropagation=@true @onclick=@HandleCorrectnessToggleButtonClick>
+				@if (Option.IsCorrect)
+				{
+					<i class="bi bi-star-fill"></i>
+				}
+				else
+				{
+					<i class="bi bi-star"></i>
+				}
+			</span>
+		</span>
+	</div>
+}
+
+@code {
+	[Parameter]
+	public QuestionOption Option { get; set; }
+
+	[Parameter]
+	public int ListCount { get; set; }
+
+	[Parameter]
+	public bool IsQuestionPending { get; set; }
+
+	[Parameter]
+	public EventCallback<Guid> OnClickCallback { get; set; }
+
+	[Parameter]
+	public EventCallback OnChangeCallback { get; set; }
+
+	private bool _isPending;
+
+	private bool IsPending => _isPending || IsQuestionPending;
+
+	private void HandleClick() => OnClickCallback.InvokeAsync(Option.Id);
+
+	private async Task HandleCorrectnessToggleButtonClick()
+	{
+		@* using var context = await DbFactory.CreateDbContextAsync();
+
+		var option = await context.QuestionOptions.FindAsync(Option.Id);
+
+		option.IsCorrect = !option.IsCorrect;
+		await context.SaveChangesAsync();
+
+		await OnChangeCallback.InvokeAsync(); *@
+
+		using var context = await DbFactory.CreateDbContextAsync();
+
+		var options = await context.QuestionOptions
+			.Where(o => o.QuestionId == Option.QuestionId)
+			.ToListAsync();
+
+		foreach (var o in options)
+		{
+			o.IsCorrect = false;
+		}
+
+		var option = await context.QuestionOptions.FindAsync(Option.Id);
+		option.IsCorrect = true;
+
+		await context.SaveChangesAsync();
+
+		await OnChangeCallback.InvokeAsync();
+	}
+
+	private async Task Move(bool moveUp)
+	{
+		_isPending = true;
+
+		using var context = await DbFactory.CreateDbContextAsync();
+
+		var optionA = await context.QuestionOptions.FindAsync(Option.Id);
+
+		var numberB = moveUp ? optionA.Number - 1 : optionA.Number + 1;
+
+		var optionB = await context.QuestionOptions
+			.SingleAsync(o => o.QuestionId == Option.QuestionId && o.Number == numberB);
+
+		optionB.Number = optionA.Number;
+
+		optionA.Number = numberB;
+
+		await context.SaveChangesAsync();
+
+		_isPending = false;
+
+		await OnChangeCallback.InvokeAsync();
+	}
+}

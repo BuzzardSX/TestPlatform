@@ -1,0 +1,64 @@
+@page "/results"
+@inject IDbContextFactory<ApplicationContext> DbFactory
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="px-1">
+	<h1 class="px-4 mt-5">
+		<span>Список обучающихся</span>
+	</h1>
+	<div class="px-4 mt-5">
+		<table class="table">
+			<thead>
+				<tr>
+					@if (Auth.User.IsInRole("Admin"))
+					{
+						<th>Имя</th>
+						<th>Фамилия</th>
+						<th>Логин</th>
+					}
+					<th>Тест</th>
+					<th>Результат</th>
+					<th>Время сдачи</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var r in Results)
+				{
+					<tr>
+						@if (Auth.User.IsInRole("Admin"))
+						{
+							<td>@r.User.Name</td>
+							<td>@r.User.Surname</td>
+							<td>@r.User.Email</td>
+						}
+						<td class="text-truncate" style="max-width: 150px;">@r.Test</td>
+						<td>@r.Score из @r.TotalScore</td>
+						<td>@r.FinishedDate.ToLocalTime()</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+@code {
+	private AuthenticationState Auth { get; set; }
+
+	private IEnumerable<Result> Results { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		Auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+		await LoadResultsAsync();
+	}
+
+	private async Task LoadResultsAsync()
+	{
+		using var context = DbFactory.CreateDbContext();
+
+		Results = await context.Results
+			.Include(r => r.User)
+			.ToListAsync();
+	}
+}

@@ -1,0 +1,24 @@
+@model LoginViewModel
+@{
+	Layout = "_Layout2";
+}
+
+<div class="w-100 m-auto" style="max-width: 480px;">
+	<img class="img-fluid px-4 mb-5" src="~/img/logo.png" />
+	<div class="bg-white shadow-sm p-5" style="border-radius: 1.75em;">
+		<h1 class="fs-3 text-center text-uppercase mt-1 mb-5">Авторизация</h1>
+		<form method="post">
+			<div class="form-floating mb-4">
+				<input class="form-control" asp-for="Email" placeholder="Введите логин" autocomplete="off" />
+				<label asp-for="Email">Логин</label>
+			</div>
+			<div class="form-floating mb-5">
+				<input class="form-control" asp-for="Password" placeholder="Введите пароль" autocomplete="off" />
+				<label asp-for="Password">Пароль</label>
+			</div>
+			<div class="d-grid">
+				<button class="btn btn-primary btn-lg" type="submit">Войти</button>
+			</div>
+		</form>
+	</div>
+</div>
