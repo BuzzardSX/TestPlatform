@@ -8,27 +8,16 @@
 	<link rel="stylesheet" href="~/overrides.css" />
 	<link href="TestPlatform.styles.css" rel="stylesheet" />
 	<style>
-		.btn-outline-primary {
-			color: var(--bs-primary);
-			border-color: var(--bs-primary);
-		}
-
-		.active {
+		@* .active {
 			background-color: rgba(255, 255, 255, 0.25);
-		}
+		} *@
 
 		.accordion-item, .accordion-button {
 			background-color: transparent;
 		}
 
-		#MainContainer {
-			display: grid;
-			grid-template-areas: "sidebar body";
-			grid-template-columns: 2fr 7fr;
-		}
-
 		#MainContainerSidebar {
-			background: #ECF4FE;
+			background-color: #ECF4FE;
 			grid-area: sidebar;
 			height: 100vh;
 		}

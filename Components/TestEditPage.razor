@@ -1,9 +1,10 @@
 @page "/test-edit/{id:guid?}"
+@attribute [Authorize(Roles = "Admin")]
 @inject IDbContextFactory<ApplicationContext> DbFactory
 
 @if (Test != null)
 {
-	<div class="modal-body pb-1">
+	<div class="modal-body pb-3">
 		<div class="form-floating">
 			<textarea class="form-control" id="TestTitle" placeholder="Укажите название теста" @bind=@Test.Title></textarea>
 			<label for="TestTitle">Название теста</label>
@@ -21,7 +22,7 @@
 					</div>
 				}
 			}
-			<div class="list-group-item">
+			<div class="list-group-item py-3">
 				<div class="mb-3">
 					<textarea class="form-control" placeholder="Содержание вопроса" @bind=@NewQuestionText></textarea>
 				</div>

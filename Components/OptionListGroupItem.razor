@@ -27,7 +27,7 @@ else
 			{
 				<i class="bi bi-arrow-down ms-2" role="button" @onclick:stopPropagation=@true @onclick=@(() => Move(false))></i>
 			}
-			<span class="text-primary ms-2" role="button" @onclick:stopPropagation=@true @onclick=@HandleCorrectnessToggleButtonClick>
+			<span class="text-warning ms-2" role="button" @onclick:stopPropagation=@true @onclick=@HandleCorrectnessToggleButtonClick>
 				@if (Option.IsCorrect)
 				{
 					<i class="bi bi-star-fill"></i>

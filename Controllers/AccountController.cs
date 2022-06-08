@@ -42,6 +42,8 @@ public class AccountController : Controller
 				new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Role.ToString())
 			};
 			var identity = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+			identity.AddClaim(new Claim(ClaimTypes.GivenName, user.Name));
+			identity.AddClaim(new Claim(ClaimTypes.Surname, user.Surname));
 			await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
 
 			if (returnUrl == null)

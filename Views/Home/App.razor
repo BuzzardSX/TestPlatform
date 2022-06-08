@@ -2,7 +2,9 @@
 	<Router AppAssembly="@typeof(TestPlatform.Program).Assembly">
 		<Found Context="routeData">
 			<AuthorizeRouteView RouteData="@routeData" DefaultLayout=@typeof(TestPlatform.Components.MainLayout)>
-				<NotAuthorized>Отказано в доступе</NotAuthorized>
+				<NotAuthorized>
+					<RedirectToLogin />
+				</NotAuthorized>
 			</AuthorizeRouteView>
 		</Found>
 		<NotFound>

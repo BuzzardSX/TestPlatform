@@ -1,5 +1,6 @@
 :root {
 	--bs-primary: rgb(84, 173, 83);
+	--bs-primary-hover: hsl(119, 27.3%, 42.3%);
 }
 
 .text-primary {
@@ -11,6 +12,29 @@
 	border-color: var(--bs-primary);
 }
 
-.btn-primary:hover {
-	background-color: hsl(119, 27.3%, 42.3%);
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+	background-color: var(--bs-primary-hover);
+	border-color: var(--bs-primary-hover);
+}
+
+.btn-primary:focus {
+	box-shadow: 0 0 0 0.25rem rgb(79 137 78 / 50%);
+}
+
+.btn-outline-primary {
+	color: var(--bs-primary);
+	border-color: var(--bs-primary);
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
+	background-color: var(--bs-primary-hover);
+	border-color: var(--bs-primary-hover);
+}
+
+.btn-outline-primary:focus {
+	box-shadow: 0 0 0 0.25rem rgb(79 137 78 / 50%);
+}
+
+.nav-link.active {
+	background-color: rgba(162, 189, 243, 0.65) !important;
 }
