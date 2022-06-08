@@ -1,12 +1,23 @@
 @page "/sertificates"
 @attribute [Authorize(Roles = "User")]
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IDbContextFactory<ApplicationContext> DbFactory
 
 <div>sertificates</div>
 
 @code {
+	private AuthenticationState Auth { get; set; }
+
+	private IEnumerable<Result> Results { get; set; }
+
 	protected override async Task OnInitializedAsync()
 	{
+		Auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
 		using var context = await DbFactory.CreateDbContextAsync();
+
+		Results = await context.Results
+			.Where(r => r.UserEmail == Auth.User.Identity.Name)
+			.ToListAsync();
 	}
 }

@@ -26,7 +26,13 @@
 				<div class="mb-3">
 					<textarea class="form-control" placeholder="Содержание вопроса" @bind=@NewQuestionText></textarea>
 				</div>
-				<button class="btn btn-primary" type="button" @onclick=@HandleAddNewQuestion>Сохранить вопрос</button>
+				<div class="d-inline-flex justify-content-end">
+					@if (ShowAlert)
+					{
+						<div class="alert alert-success">Тест успешно сохранён</div>
+					}
+					<button class="btn btn-primary" type="button" @onclick=@HandleAddNewQuestion>Сохранить вопрос</button>
+				</div>
 			</div>
 		</div>
 	}
@@ -45,6 +51,8 @@
 
 	private string NewQuestionText { get; set; }
 
+	private bool ShowAlert { get; set; }
+
 	protected override void OnInitialized()
 	{
 		using var context = DbFactory.CreateDbContext();
@@ -61,6 +69,8 @@
 
 		context.Tests.Update(Test);
 		await context.SaveChangesAsync();
+
+		ShowAlert = true;
 	}
 
 	private async Task HandleAddNewQuestion()
