@@ -1,11 +1,16 @@
 #wrapper {
 	display: grid;
-	grid-template-areas: "aside main";
+	grid-template-areas: "logo main" "aside main";
 	grid-template-columns: 2fr 7fr;
 }
 
+#wrapper > #logo {
+	background-color: #ecf4fe;
+	grid-area: logo;
+}
+
 #wrapper > aside {
-	background: #ECF4FE;
+	background-color: #ecf4fe;
 	grid-area: aside;
 	height: 100vh;
 }

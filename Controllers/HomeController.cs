@@ -5,6 +5,4 @@ namespace TestPlatform.Controllers;
 public class HomeController : Controller
 {
 	public IActionResult Host() => View();
-
-	public IActionResult Finished() => View();
 }

@@ -1,7 +1,10 @@
 @inherits LayoutComponentBase
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<div id="wrapper">
+<div class="container p-0 shadow-sm" id="wrapper">
+	<div class="px-4 py-3" id="logo">
+		<img class="img-fluid" src="/img/logo.png" />
+	</div>
 	<aside>
 		<ul class="nav nav-pills text-dark">
 			@if (Auth.User.IsInRole("Admin"))
@@ -52,16 +55,23 @@
 			}
 		</ul>
 	</aside>
-	<main>
-		<div>
-			@if (Auth.User.IsInRole("Admin"))
-			{
-				<span>Администратор</span>
-			}
-			@if (Auth.User.IsInRole("User"))
-			{
-				<span>Обучающийся</span>
-			}
+	<main class="bg-white">
+		<div class="navbar shadow-sm">
+			<div class="container">
+				<span class="navbar-text fw-bold">
+					<span>Имя Фамилия</span>
+					<span>
+						@if (Auth.User.IsInRole("Admin"))
+						{
+							<span>Администратор</span>
+						}
+						@if (Auth.User.IsInRole("User"))
+						{
+							<span>Обучающийся</span>
+						}
+					</span>
+				</span>
+			</div>
 		</div>
 		<div>@Body</div>
 	</main>

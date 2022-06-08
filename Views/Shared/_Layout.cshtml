@@ -5,35 +5,42 @@
 	<base href="~/" />
 	<link rel="stylesheet" href="~/bootstrap.min.css" />
 	<link rel="stylesheet" href="~/bootstrap-icons.css" />
-	@RenderSection("Stylesheets", false)
+	<link rel="stylesheet" href="~/overrides.css" />
+	<link href="TestPlatform.styles.css" rel="stylesheet" />
+	<style>
+		.btn-outline-primary {
+			color: var(--bs-primary);
+			border-color: var(--bs-primary);
+		}
+
+		.active {
+			background-color: rgba(255, 255, 255, 0.25);
+		}
+
+		.accordion-item, .accordion-button {
+			background-color: transparent;
+		}
+
+		#MainContainer {
+			display: grid;
+			grid-template-areas: "sidebar body";
+			grid-template-columns: 2fr 7fr;
+		}
+
+		#MainContainerSidebar {
+			background: #ECF4FE;
+			grid-area: sidebar;
+			height: 100vh;
+		}
+
+		#MainContainerSidebar .nav-item .active {
+			@* background-color: rgba(255, 255, 255, 0.25); *@
+			background-color: rgba(162, 189, 243, 0.65);
+		}
+	</style>
 </head>
-<body>
-	<nav class="navbar navbar-expand-lg bg-light">
-		<div class="container">
-			<ul class="navbar-nav">
-				<li class="nav-item">
-					<a class="nav-link" asp-route="home">Домой</a>
-				</li>
-				@if (Context.User.IsInRole("Admin"))
-				{
-					<li class="nav-item">
-						<a class="nav-link" href="/users">Пользователи</a>
-					</li>
-				}
-				<li class="nav-item">
-					<a class="nav-link" asp-route="logout">Выйти</a>
-				</li>
-				<li class="nav-item">
-					<span>@Context.User.Identity.Name</span>
-				</li>
-				<li class="nav-item">
-				</li>
-			</ul>
-		</div>
-	</nav>
-	<div class="container">
-		@RenderBody()
-	</div>
+<body class="bg-light">
+	@RenderBody()
 	<script src="_framework/blazor.server.js"></script>
 	<script src="~/bootstrap.min.js"></script>
 </body>
