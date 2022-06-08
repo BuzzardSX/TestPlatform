@@ -138,6 +138,8 @@
 	{
 		using var context = await DbFactory.CreateDbContextAsync();
 
-		Users = await context.Users.ToListAsync();
+		Users = await context.Users
+			.Where(u => u.Role != UserRole.Admin)
+			.ToListAsync();
 	}
 }
