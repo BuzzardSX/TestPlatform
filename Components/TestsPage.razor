@@ -20,7 +20,9 @@
 	</div>
 </div>
 <div class="d-flex justify-content-center mt-5">
-	<a class="btn btn-primary btn-lg fw-semibold" href="/test-edit">Добавить тест</a>
+	<AuthorizeView Roles="Admin">
+		<a class="btn btn-primary btn-lg fw-semibold" href="/test-edit">Добавить тест</a>
+	</AuthorizeView>
 </div>
 
 @code {
