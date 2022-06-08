@@ -1,0 +1,11 @@
+@page "/sertificates"
+@inject IDbContextFactory<ApplicationContext> DbFactory
+
+<div>sertificates</div>
+
+@code {
+	protected override async Task OnInitializedAsync()
+	{
+		using var context = await DbFactory.CreateDbContextAsync();
+	}
+}

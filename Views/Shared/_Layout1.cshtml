@@ -6,6 +6,7 @@
 	<link rel="stylesheet" href="~/bootstrap.min.css" />
 	<link rel="stylesheet" href="~/bootstrap-icons.css" />
 	<link rel="stylesheet" href="~/overrides.css" />
+	<link href="TestPlatform.styles.css" rel="stylesheet" />
 	<style>
 		.btn-outline-primary {
 			color: var(--bs-primary);
@@ -28,7 +29,6 @@
 
 		#MainContainerSidebar {
 			background: #ECF4FE;
-			@* background-image: linear-gradient(135deg, #2C73D2 0%, #008F7A 70%); *@
 			grid-area: sidebar;
 			height: 100vh;
 		}
@@ -79,15 +79,6 @@
 			<div class="offcanvas-lg">
 				<div class="offcanvas-body">
 					<ul class="nav nav-pills flex-column">
-						@if (User.IsInRole("Admin"))
-						{
-							<li class="nav-item">
-								<a class="nav-link text-dark" href="/users">
-									<i class="bi bi-people-fill me-2"></i>
-									<span>Список обучающихся</span>
-								</a>
-							</li>
-						}
 						<div class="accordion accordion-flush">
 							<div class="accordion-item">
 								<div class="accordion-button collapsed ps-3" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne">
@@ -115,15 +106,6 @@
 								</div>
 							</div>
 						</div>
-						@if (User.IsInRole("Admin"))
-						{
-							<li class="nav-item">
-								<a class="nav-link text-dark" asp-route="users">
-									<i class="bi bi-card-list me-2"></i>
-									<span>Итоги тестирования</span>
-								</a>
-							</li>
-						}
 						@if (User.IsInRole("User"))
 						{
 							<li class="nav-item">
@@ -140,7 +122,7 @@
 		<div id="MainContainerBody">
 			<nav class="navbar navbar-expand-lg shadow-sm">
 				<div class="container ps-3">
-					<span class="navbat-text fw-bold">
+					<span class="navbar-text fw-bold">
 						@if (User.IsInRole("Admin"))
 						{
 							@:Анна Митюшкина (Администратор)

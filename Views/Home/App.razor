@@ -1,8 +1,12 @@
-<Router AppAssembly="@typeof(App).Assembly">
-	<Found Context="routeData">
-		<RouteView RouteData="@routeData" DefaultLayout=@typeof(TestPlatform.Components.MainLayout) />
-	</Found>
-	<NotFound>
-		<p role="alert">Sorry, there's nothing at this address.</p>
-	</NotFound>
-</Router>
+<CascadingAuthenticationState>
+	<Router AppAssembly="@typeof(TestPlatform.Program).Assembly">
+		<Found Context="routeData">
+			<AuthorizeRouteView RouteData="@routeData" DefaultLayout=@typeof(TestPlatform.Components.MainLayout)>
+				<NotAuthorized>Отказано в доступе</NotAuthorized>
+			</AuthorizeRouteView>
+		</Found>
+		<NotFound>
+			<p role="alert">Sorry, there's nothing at this address.</p>
+		</NotFound>
+	</Router>
+</CascadingAuthenticationState>

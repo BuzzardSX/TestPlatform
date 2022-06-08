@@ -41,8 +41,8 @@ public class Startup
 			endpoints.MapControllerRoute("login", "/login", new { controller = "Account", action = "Login" });
 			endpoints.MapControllerRoute("logout", "/logout", new { controller = "Account", action = "Logout" });
 			endpoints.MapControllerRoute("res", "/home/results", new { controller = "Home", action = "Finished" });
-			endpoints.MapFallbackToController("Host", "Home");
 			endpoints.MapBlazorHub();
+			endpoints.MapFallbackToController("Host", "Home");
 		});
 	}
 }

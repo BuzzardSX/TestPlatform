@@ -1,16 +1,71 @@
 @inherits LayoutComponentBase
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<div>@Auth.User.Identity.Name</div>
-<div class="nav">
-	<div class="nav-item custom">
-		<NavLink href="/users">Список обучающихся</NavLink>
-	</div>
-	<div class="nav-item">
-		<NavLink href="/tests">Список тестов</NavLink>
-	</div>
+<div id="wrapper">
+	<aside>
+		<ul class="nav nav-pills text-dark">
+			@if (Auth.User.IsInRole("Admin"))
+			{
+				<li class="nav-item">
+					<NavLink class="nav-link" href="/users">
+						<i class="bi bi-people-fill"></i>
+						<span class="ms-2">Список обучающихся</span>
+					</NavLink>
+				</li>
+			}
+			<li class="nav-item">
+				<button class="nav-link" data-bs-toggle="collapse" data-bs-target="#TestNav">
+					<i class="bi bi-journal"></i>
+					<span class="ms-2">Тест</span>
+				</button>
+				<div class="collapse show" id="TestNav">
+					<ul class="nav nav-pills ms-2">
+						@if (Auth.User.IsInRole("Admin"))
+						{
+							<li class="nav-item">
+								<NavLink class="nav-link" href=@($"/test-edit")>Создать тест</NavLink>
+							</li>
+						}
+						<li class="nav-item">
+							<NavLink class="nav-link" href="/tests">Список тестов</NavLink>
+						</li>
+					</ul>
+				</div>
+			</li>
+			@if (Auth.User.IsInRole("Admin"))
+			{
+				<li class="nav-item">
+					<NavLink class="nav-link" href="/results">
+						<i class="bi bi-card-list"></i>
+						<span class="ms-2">Итоги тестирования</span>
+					</NavLink>
+				</li>
+			}
+			@if (Auth.User.IsInRole("User"))
+			{
+				<li class="nav-item">
+					<NavLink class="nav-link" href="/sertificates">
+						<i class="bi bi-award-fill"></i>
+						<span class="ms-2">Сертификаты</span>
+					</NavLink>
+				</li>
+			}
+		</ul>
+	</aside>
+	<main>
+		<div>
+			@if (Auth.User.IsInRole("Admin"))
+			{
+				<span>Администратор</span>
+			}
+			@if (Auth.User.IsInRole("User"))
+			{
+				<span>Обучающийся</span>
+			}
+		</div>
+		<div>@Body</div>
+	</main>
 </div>
-<div class="main">@Body</div>
 
 @code {
 	private AuthenticationState Auth { get; set; }

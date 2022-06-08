@@ -1,0 +1,19 @@
+#wrapper {
+	display: grid;
+	grid-template-areas: "aside main";
+	grid-template-columns: 2fr 7fr;
+}
+
+#wrapper > aside {
+	background: #ECF4FE;
+	grid-area: aside;
+	height: 100vh;
+}
+
+.nav-link {
+	color: #212529 !important;
+}
+
+#wrapper > main {
+	grid-area: main;
+}
