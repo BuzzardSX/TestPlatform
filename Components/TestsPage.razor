@@ -1,7 +1,6 @@
 @page "/"
 @page "/tests"
 @attribute [Authorize]
-
 @inject IDbContextFactory<ApplicationContext> DbFactory
 
 <div class="px-4 mt-5">
@@ -28,16 +27,15 @@
 @code {
 	private bool _isPending;
 
-	private IEnumerable<Test> Tests { get; set; }
+	private IEnumerable<Test> Tests { get; set; } = new List<Test>();
 
-	protected override void OnInitialized()
-	{
-		using var context = DbFactory.CreateDbContext();
+	private AuthenticationState Auth { get; set; }
 
-		Tests = context.Tests.ToList();
-	}
+	protected override async Task OnInitializedAsync() => await LoadTestsAsync();
 
-	private async Task HandleTestsChange()
+	private async Task HandleTestsChange() => await LoadTestsAsync();
+
+	private async Task LoadTestsAsync()
 	{
 		using var context = await DbFactory.CreateDbContextAsync();
 

@@ -65,15 +65,6 @@ else
 
 	private async Task HandleCorrectnessToggleButtonClick()
 	{
-		@* using var context = await DbFactory.CreateDbContextAsync();
-
-		var option = await context.QuestionOptions.FindAsync(Option.Id);
-
-		option.IsCorrect = !option.IsCorrect;
-		await context.SaveChangesAsync();
-
-		await OnChangeCallback.InvokeAsync(); *@
-
 		using var context = await DbFactory.CreateDbContextAsync();
 
 		var options = await context.QuestionOptions

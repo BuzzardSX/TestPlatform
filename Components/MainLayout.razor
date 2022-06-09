@@ -4,9 +4,9 @@
 
 <div class="container p-0 shadow-sm" id="wrapper">
 	<aside class="px-3">
-		<div class="px-4 py-3" id="logo">
+		<a class="d-block px-4 py-3" id="logo" href="/">
 			<img class="img-fluid" src="/img/logo.png" />
-		</div>
+		</a>
 		<ul class="nav nav-pills flex-column text-dark mt-4">
 			@if (Auth.User.IsInRole("Admin"))
 			{
