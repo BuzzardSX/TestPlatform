@@ -1,8 +1,11 @@
 @inject ILogger<TestPassQuestion> Logger
 
-<div class="list-group-item">
-	<div>@Question.Text</div>
-	<div class="list-group">
+<div class="list-group-item pt-3 pb-3">
+	<div class="py-1">
+		<span class="h5">Вопрос №@Question.Number</span>
+	</div>
+	<div class="mt-2">@Question.Text</div>
+	<div class="list-group mt-3">
 		@foreach (var o in Question.Options)
 		{
 			<TestPassQuestionOption Option=@o SelectedOptionId=@SelectedOptionId OnClickCallback=@HandleOptionClick />

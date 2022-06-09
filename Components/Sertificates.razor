@@ -3,12 +3,46 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IDbContextFactory<ApplicationContext> DbFactory
 
-<div>sertificates</div>
+<div class="px-4">
+	<h1 class="mt-5">
+		<span>Сертификаты</span>
+	</h1>
+</div>
+<div class="container mt-5">
+	<div class="row row-cols-2 g-3">
+		@foreach (var r in Results)
+		{
+			<div class="col">
+				<div class="card">
+					<div class="card-body">
+						<div class="card-title h5">
+							Сертификат (от @r.FinishedDate.ToShortDateString())
+						</div>
+						<div class="text-center lead">
+							<i class="bi bi-award logo text-warning"></i>
+							<br />
+							<span class="lead">Студент(-ка) @r.User.Name @r.User.Surname</span>
+							<br />
+							<span class="lead">успешно прошёл(-ла)</span>
+							<br />
+							<span>
+								<span>тест</span>
+								<u>@r.Test</u>
+							</span>
+							<br />
+							<strong>на @r.Score из @r.TotalScore баллов.</strong>
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+</div>
 
 @code {
 	private AuthenticationState Auth { get; set; }
 
-	private IEnumerable<Result> Results { get; set; }
+	private IEnumerable<Result> Results { get; set; } = new List<Result>();
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -16,8 +50,22 @@
 
 		using var context = await DbFactory.CreateDbContextAsync();
 
-		Results = await context.Results
+		var results = await context.Results
 			.Where(r => r.UserEmail == Auth.User.Identity.Name)
+			.Include(r => r.User)
 			.ToListAsync();
+
+		var maxResults = results
+			.GroupBy(r => r.Test)
+			.Select(g => new Result
+			{
+				Test = g.Key,
+				Score = g.Max(r => r.Score),
+				TotalScore = g.MaxBy(r => r.Score).TotalScore,
+				User = g.MaxBy(r => r.Score).User,
+				FinishedDate = g.MaxBy(r => r.Score).FinishedDate
+			});
+
+		Results = maxResults;
 	}
 }

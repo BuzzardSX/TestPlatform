@@ -26,13 +26,7 @@
 				<div class="mb-3">
 					<textarea class="form-control" placeholder="Содержание вопроса" @bind=@NewQuestionText></textarea>
 				</div>
-				<div class="d-inline-flex justify-content-end">
-					@if (ShowAlert)
-					{
-						<div class="alert alert-success">Тест успешно сохранён</div>
-					}
-					<button class="btn btn-primary" type="button" @onclick=@HandleAddNewQuestion>Сохранить вопрос</button>
-				</div>
+				<button class="btn btn-primary" type="button" @onclick=@HandleAddNewQuestion>Сохранить вопрос</button>
 			</div>
 		</div>
 	}
@@ -40,8 +34,18 @@
 <div class="modal-footer">
 	<button class="btn btn-primary" data-bs-dismiss="modal" @onclick=@HandleSaveTestClick>Сохранить</button>
 </div>
+<div class="d-flex justify-content-center">
+	@if (ShowAlert)
+	{
+		<div class="alert alert-success">
+			<span>Тест успешно сохранён</span>
+		</div>
+	}
+</div>
 
 @code {
+	private bool ShowAlert { get; set; }
+
 	[Parameter]
 	public Guid? Id { get; set; }
 
@@ -50,8 +54,6 @@
 	private bool _isPending;
 
 	private string NewQuestionText { get; set; }
-
-	private bool ShowAlert { get; set; }
 
 	protected override void OnInitialized()
 	{
@@ -63,6 +65,18 @@
 			.SingleOrDefault(t => t.Id == Id) ?? new();
 	}
 
+	public int Time { get; set; } = 3;
+
+	public async Task StartTimerAsync()
+    {
+        while (Time > 0)
+        {
+            Time--;
+            StateHasChanged();
+            await Task.Delay(1000);
+        }
+    }
+
 	private async Task HandleSaveTestClick()
 	{
 		using var context = await DbFactory.CreateDbContextAsync();
@@ -71,6 +85,9 @@
 		await context.SaveChangesAsync();
 
 		ShowAlert = true;
+		await StartTimerAsync();
+		Time = 3;
+		ShowAlert = false;
 	}
 
 	private async Task HandleAddNewQuestion()

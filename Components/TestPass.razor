@@ -5,14 +5,18 @@
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<h1>@Test.Title</h1>
-<div class="list-group list-group-flush">
+<div class="px-4">
+	<h1 class="mt-5">@Test.Title</h1>
+</div>
+<div class="list-group list-group-flush mt-4">
 	@foreach (var q in Test.Questions)
 	{
 		<TestPassQuestion Question=@q OnOptionSelectCallback=@HandleOptionSelect />
 	}
 </div>
-<button class="btn btn-primary btn-lg" type="button" @onclick=@HandleFinishButtonClick>Завершить тест</button>
+<div class="d-flex justify-content-center p-3">
+	<button class="btn btn-primary btn-lg" type="button" @onclick=@HandleFinishButtonClick>Завершить тест</button>
+</div>
 
 @code {
 	[Parameter]
@@ -79,6 +83,6 @@
 		await context.Results.AddAsync(result);
 		await context.SaveChangesAsync();
 
-		NavigationManager.NavigateTo("/results");
+		NavigationManager.NavigateTo("/sertificates");
 	}
 }
